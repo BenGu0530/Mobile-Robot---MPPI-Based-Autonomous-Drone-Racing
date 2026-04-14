@@ -1,0 +1,166 @@
+<?xml version="1.0"?>
+<robot name="quadcopter">
+  <link name="base_link">
+    <inertial>
+      <mass value="1.2"/>
+      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+    </inertial>
+    <collision>
+      <geometry>
+        <box size="0.3 0.3 0.1"/>
+      </geometry>
+    </collision>
+    <visual>
+      <geometry>
+        <box size="0.3 0.3 0.1"/>
+      </geometry>
+      <material name="black">
+        <color rgba="0 0 0 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <!-- Motor 1 (front-left) -->
+  <joint name="motor_1_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="motor_1"/>
+    <origin xyz="0.15 0.15 0.05" rpy="0 0 0"/>
+  </joint>
+
+  <link name="motor_1">
+    <visual>
+      <geometry>
+        <cylinder radius="0.02" length="0.1"/>
+      </geometry>
+      <material name="gray">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <!-- Motor 2 (front-right) -->
+  <joint name="motor_2_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="motor_2"/>
+    <origin xyz="0.15 -0.15 0.05" rpy="0 0 0"/>
+  </joint>
+
+  <link name="motor_2">
+    <visual>
+      <geometry>
+        <cylinder radius="0.02" length="0.1"/>
+      </geometry>
+      <material name="gray">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <!-- Motor 3 (rear-left) -->
+  <joint name="motor_3_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="motor_3"/>
+    <origin xyz="-0.15 0.15 0.05" rpy="0 0 0"/>
+  </joint>
+
+  <link name="motor_3">
+    <visual>
+      <geometry>
+        <cylinder radius="0.02" length="0.1"/>
+      </geometry>
+      <material name="gray">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <!-- Motor 4 (rear-right) -->
+  <joint name="motor_4_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="motor_4"/>
+    <origin xyz="-0.15 -0.15 0.05" rpy="0 0 0"/>
+  </joint>
+
+  <link name="motor_4">
+    <visual>
+      <geometry>
+        <cylinder radius="0.02" length="0.1"/>
+      </geometry>
+      <material name="gray">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <!-- Propeller 1 (front-left) - disc above motor_1 -->
+  <joint name="prop_1_joint" type="fixed">
+    <parent link="motor_1"/>
+    <child link="prop_1"/>
+    <origin xyz="0 0 0.06" rpy="0 0 0"/>
+  </joint>
+
+  <link name="prop_1">
+    <visual>
+      <geometry>
+        <cylinder radius="0.12" length="0.005"/>
+      </geometry>
+      <material name="prop_blue">
+        <color rgba="0.2 0.5 1.0 0.6"/>
+      </material>
+    </visual>
+  </link>
+
+  <!-- Propeller 2 (front-right) - disc above motor_2 -->
+  <joint name="prop_2_joint" type="fixed">
+    <parent link="motor_2"/>
+    <child link="prop_2"/>
+    <origin xyz="0 0 0.06" rpy="0 0 0"/>
+  </joint>
+
+  <link name="prop_2">
+    <visual>
+      <geometry>
+        <cylinder radius="0.12" length="0.005"/>
+      </geometry>
+      <material name="prop_blue">
+        <color rgba="0.2 0.5 1.0 0.6"/>
+      </material>
+    </visual>
+  </link>
+
+  <!-- Propeller 3 (rear-left) - disc above motor_3 -->
+  <joint name="prop_3_joint" type="fixed">
+    <parent link="motor_3"/>
+    <child link="prop_3"/>
+    <origin xyz="0 0 0.06" rpy="0 0 0"/>
+  </joint>
+
+  <link name="prop_3">
+    <visual>
+      <geometry>
+        <cylinder radius="0.12" length="0.005"/>
+      </geometry>
+      <material name="prop_blue">
+        <color rgba="0.2 0.5 1.0 0.6"/>
+      </material>
+    </visual>
+  </link>
+
+  <!-- Propeller 4 (rear-right) - disc above motor_4 -->
+  <joint name="prop_4_joint" type="fixed">
+    <parent link="motor_4"/>
+    <child link="prop_4"/>
+    <origin xyz="0 0 0.06" rpy="0 0 0"/>
+  </joint>
+
+  <link name="prop_4">
+    <visual>
+      <geometry>
+        <cylinder radius="0.12" length="0.005"/>
+      </geometry>
+      <material name="prop_blue">
+        <color rgba="0.2 0.5 1.0 0.6"/>
+      </material>
+    </visual>
+  </link>
+</robot>

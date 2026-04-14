@@ -1,0 +1,93 @@
+from launch import LaunchDescription
+from launch_ros.actions import Node
+from launch.actions import DeclareLaunchArgument
+from launch.conditions import IfCondition
+from launch.substitutions import LaunchConfiguration
+import os
+from ament_index_python.packages import get_package_share_directory
+
+
+def generate_launch_description():
+    use_rviz = LaunchConfiguration("use_rviz", default="true")
+    use_circle_path = LaunchConfiguration("use_circle_path", default="false")
+    use_tube_marker = LaunchConfiguration("use_tube_marker", default="true")
+    use_gazebo_bridge = LaunchConfiguration("use_gazebo_bridge", default="false")
+
+    drone_sim_dir = get_package_share_directory("drone_simulation")
+    drone_models_dir = get_package_share_directory("drone_models")
+    rviz_config = os.path.join(drone_sim_dir, "config", "rviz_config.rviz")
+    urdf_file = os.path.join(drone_models_dir, "urdf", "quadcopter.urdf")
+
+    with open(urdf_file, "r") as f:
+        robot_description = f.read()
+
+    return LaunchDescription(
+        [
+            DeclareLaunchArgument(
+                "use_rviz", default_value="true", description="Start Rviz2"
+            ),
+            DeclareLaunchArgument(
+                "use_circle_path",
+                default_value="false",
+                description="Publish circular target path on /drone/target_pose",
+            ),
+            DeclareLaunchArgument(
+                "use_tube_marker",
+                default_value="true",
+                description="Publish a large tube marker in RViz",
+            ),
+            DeclareLaunchArgument(
+                "use_gazebo_bridge",
+                default_value="false",
+                description="Forward /drone/target_pose commands to Gazebo model pose",
+            ),
+            # Publish the URDF so RViz RobotModel display works
+            Node(
+                package="robot_state_publisher",
+                executable="robot_state_publisher",
+                name="robot_state_publisher",
+                output="screen",
+                parameters=[{"robot_description": robot_description}],
+            ),
+            # Position controller node
+            Node(
+                package="drone_simulation",
+                executable="position_controller",
+                name="position_controller",
+                output="screen",
+                emulate_tty=True,
+            ),
+            Node(
+                package="drone_simulation",
+                executable="circle_path_publisher",
+                name="circle_path_publisher",
+                output="screen",
+                emulate_tty=True,
+                condition=IfCondition(use_circle_path),
+            ),
+            Node(
+                package="drone_simulation",
+                executable="tube_marker_publisher",
+                name="tube_marker_publisher",
+                output="screen",
+                emulate_tty=True,
+                condition=IfCondition(use_tube_marker),
+            ),
+            Node(
+                package="drone_simulation",
+                executable="gazebo_pose_bridge",
+                name="gazebo_pose_bridge",
+                output="screen",
+                emulate_tty=True,
+                condition=IfCondition(use_gazebo_bridge),
+            ),
+            Node(
+                package="rviz2",
+                executable="rviz2",
+                name="rviz2",
+                arguments=["-d", rviz_config],
+                output="screen",
+                condition=IfCondition(use_rviz),
+            ),
+        ]
+    )

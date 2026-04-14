@@ -1,0 +1,15 @@
+.git
+.gitignore
+build/
+devel/
+install/
+*.swp
+*.swo
+*~
+.DS_Store
+__pycache__
+*.pyc
+.venv
+README.md
+.github
+.gitmodules

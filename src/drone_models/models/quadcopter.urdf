@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<robot name="quadcopter">
+  <!-- Base link (drone body) -->
+  <link name="world"/>
+
+  <joint name="base_joint" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="base_link">
+    <inertial>
+      <mass value="1.2"/>
+      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+    </inertial>
+    <collision>
+      <geometry>
+        <box size="0.3 0.3 0.1"/>
+      </geometry>
+    </collision>
+    <visual>
+      <geometry>
+        <box size="0.3 0.3 0.1"/>
+      </geometry>
+      <material name="black">
+        <color rgba="0 0 0 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <!-- Motor 1 (front-left) -->
+  <joint name="motor_1_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="motor_1"/>
+    <origin xyz="0.15 0.15 0.05" rpy="0 0 0"/>
+  </joint>
+
+  <link name="motor_1">
+    <visual>
+      <geometry>
+        <cylinder radius="0.02" length="0.1"/>
+      </geometry>
+      <material name="gray">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <!-- Motor 2 (front-right) -->
+  <joint name="motor_2_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="motor_2"/>
+    <origin xyz="0.15 -0.15 0.05" rpy="0 0 0"/>
+  </joint>
+
+  <link name="motor_2">
+    <visual>
+      <geometry>
+        <cylinder radius="0.02" length="0.1"/>
+      </geometry>
+      <material name="gray">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <!-- Motor 3 (rear-left) -->
+  <joint name="motor_3_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="motor_3"/>
+    <origin xyz="-0.15 0.15 0.05" rpy="0 0 0"/>
+  </joint>
+
+  <link name="motor_3">
+    <visual>
+      <geometry>
+        <cylinder radius="0.02" length="0.1"/>
+      </geometry>
+      <material name="gray">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <!-- Motor 4 (rear-right) -->
+  <joint name="motor_4_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="motor_4"/>
+    <origin xyz="-0.15 -0.15 0.05" rpy="0 0 0"/>
+  </joint>
+
+  <link name="motor_4">
+    <visual>
+      <geometry>
+        <cylinder radius="0.02" length="0.1"/>
+      </geometry>
+      <material name="gray">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+    </visual>
+  </link>
+</robot>

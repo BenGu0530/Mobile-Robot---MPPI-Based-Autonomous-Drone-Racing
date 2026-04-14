@@ -1,0 +1,58 @@
+services:
+  # Main ROS 2 container
+  drone_sim:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        HOST_UID: ${HOST_UID:-1000}
+        HOST_GID: ${HOST_GID:-1000}
+    platform: linux/amd64
+    container_name: drone_sim
+    environment:
+      - DISPLAY=:1
+      - QT_X11_NO_MITSHM=1
+      - LIBGL_ALWAYS_SOFTWARE=1
+      - GALLIUM_DRIVER=llvmpipe
+      - ROS_DOMAIN_ID=0
+      - HOST_UID=${HOST_UID:-1000}
+      - HOST_GID=${HOST_GID:-1000}
+    volumes:
+      # Mount source code for live editing
+      - ./src:/ros2_ws/src
+      - ./config:/ros2_ws/config
+    networks:
+      - ros_network
+    ports:
+      - "5900:5900"   # VNC (use any VNC client)
+      - "8080:8080"   # noVNC web browser access
+    stdin_open: true
+    tty: true
+    command: bash
+
+  # Optional: Separate Gazebo container (headless simulation server)
+  gazebo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        HOST_UID: ${HOST_UID:-1000}
+        HOST_GID: ${HOST_GID:-1000}
+    image: mobile-robot-final-test2-gazebo:latest
+    container_name: gazebo_server
+    platform: linux/amd64
+    environment:
+      - ROS_DOMAIN_ID=0
+      - IGN_GAZEBO_RESOURCE_PATH=/ros2_ws/src/drone_models/models
+    volumes:
+      - ./src/drone_models:/ros2_ws/src/drone_models:ro
+    networks:
+      - ros_network
+    command: bash -lc "source /opt/ros/humble/setup.bash && ign gazebo -r -s -v 4 /ros2_ws/src/drone_models/worlds/quadcopter_world.sdf"
+    profiles:
+      - gazebo
+
+networks:
+  ros_network:
+    name: ros_network
+    driver: bridge
