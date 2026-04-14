@@ -11,6 +11,8 @@ def generate_launch_description():
     use_rviz = LaunchConfiguration("use_rviz", default="true")
     use_circle_path = LaunchConfiguration("use_circle_path", default="false")
     use_tube_marker = LaunchConfiguration("use_tube_marker", default="true")
+    use_obstacles = LaunchConfiguration("use_obstacles", default="true")
+    use_control_points = LaunchConfiguration("use_control_points", default="true")
     use_gazebo_bridge = LaunchConfiguration("use_gazebo_bridge", default="false")
 
     drone_sim_dir = get_package_share_directory("drone_simulation")
@@ -35,6 +37,16 @@ def generate_launch_description():
                 "use_tube_marker",
                 default_value="true",
                 description="Publish a large tube marker in RViz",
+            ),
+            DeclareLaunchArgument(
+                "use_obstacles",
+                default_value="true",
+                description="Publish obstacle markers in RViz",
+            ),
+            DeclareLaunchArgument(
+                "use_control_points",
+                default_value="true",
+                description="Publish control points in RViz",
             ),
             DeclareLaunchArgument(
                 "use_gazebo_bridge",
@@ -72,6 +84,22 @@ def generate_launch_description():
                 output="screen",
                 emulate_tty=True,
                 condition=IfCondition(use_tube_marker),
+            ),
+            Node(
+                package="drone_simulation",
+                executable="obstacles_publisher",
+                name="obstacles_publisher",
+                output="screen",
+                emulate_tty=True,
+                condition=IfCondition(use_obstacles),
+            ),
+            Node(
+                package="drone_simulation",
+                executable="control_points_publisher",
+                name="control_points_publisher",
+                output="screen",
+                emulate_tty=True,
+                condition=IfCondition(use_control_points),
             ),
             Node(
                 package="drone_simulation",
