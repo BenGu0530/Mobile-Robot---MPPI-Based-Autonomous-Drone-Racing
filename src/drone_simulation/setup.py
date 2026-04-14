@@ -26,6 +26,8 @@ setup(
             "position_controller = drone_simulation.position_controller:main",
             "tube_marker_publisher = drone_simulation.tube_marker_publisher:main",
             "obstacles_publisher = drone_simulation.obstacles_publisher:main",
+            "waypoints_publisher = drone_simulation.waypoints_publisher:main",
+            "race_node = drone_simulation.race_node:main",
             "control_points_publisher = drone_simulation.control_points_publisher:main",
         ],
     },

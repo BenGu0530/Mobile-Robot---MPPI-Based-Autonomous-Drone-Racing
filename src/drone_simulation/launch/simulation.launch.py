@@ -13,7 +13,8 @@ def generate_launch_description():
     use_tube_marker = LaunchConfiguration("use_tube_marker", default="true")
     use_obstacles = LaunchConfiguration("use_obstacles", default="true")
     use_control_points = LaunchConfiguration("use_control_points", default="true")
-    use_gazebo_bridge = LaunchConfiguration("use_gazebo_bridge", default="false")
+    use_race_node = LaunchConfiguration("use_race_node", default="true")
+    use_gazebo_bridge = LaunchConfiguration("use_gazebo_bridge", default="true")
 
     drone_sim_dir = get_package_share_directory("drone_simulation")
     drone_models_dir = get_package_share_directory("drone_models")
@@ -47,6 +48,11 @@ def generate_launch_description():
                 "use_control_points",
                 default_value="true",
                 description="Publish control points in RViz",
+            ),
+            DeclareLaunchArgument(
+                "use_race_node",
+                default_value="true",
+                description="Start the race_node to publish targets to /drone/target_pose",
             ),
             DeclareLaunchArgument(
                 "use_gazebo_bridge",
@@ -108,6 +114,14 @@ def generate_launch_description():
                 output="screen",
                 emulate_tty=True,
                 condition=IfCondition(use_gazebo_bridge),
+            ),
+            Node(
+                package="drone_simulation",
+                executable="race_node",
+                name="race_node",
+                output="screen",
+                emulate_tty=True,
+                condition=IfCondition(use_race_node),
             ),
             Node(
                 package="rviz2",
