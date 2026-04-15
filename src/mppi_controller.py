@@ -103,8 +103,7 @@ class MPPI:
         costs = np.zeros(self.K)
         X = np.tile(x0, (self.K, 1))
 
-        x0_diff = self._wp - x0[0:3]
-        x0_progress = self._arc[np.argmin(np.sum(x0_diff**2, axis=1))]
+        x0_progress, _, _ = self.env.query(x0[0:3])
 
         for t in range(self.T):
             U = np.clip(self.U[t] + eps[:, t, :], self.rpm_min, self.rpm_max)
