@@ -45,6 +45,15 @@ class DroneController(Node):
         # TF broadcaster (publish drone position in TF tree)
         self.tf_broadcaster = TransformBroadcaster(self)
 
+        # Parameter: threshold distance to detect a discontinuity (meters).
+        # If a jump larger than this is observed between consecutive poses,
+        # the stored Path is cleared to avoid RViz drawing a long connector
+        # line between laps or teleports.
+        self.declare_parameter("jump_threshold", 5.0)
+        self.jump_threshold = float(
+            self.get_parameter("jump_threshold").get_parameter_value().double_value
+        )
+
         # Timer for publishing state at 10 Hz
         self.timer = self.create_timer(0.1, self.publish_state)
 
@@ -86,6 +95,19 @@ class DroneController(Node):
 
         # Update and publish movement history as nav_msgs/Path.
         self.path_msg.header.stamp = pose_msg.header.stamp
+        # Detect large discontinuities and reset path to avoid drawing
+        # a connector line between the last point of the previous run
+        # and the first point of the next run.
+        if len(self.path_msg.poses) > 0:
+            last = self.path_msg.poses[-1].pose.position
+            dx = pose_msg.pose.position.x - last.x
+            dy = pose_msg.pose.position.y - last.y
+            dz = pose_msg.pose.position.z - last.z
+            dist = math.sqrt(dx * dx + dy * dy + dz * dz)
+            if dist > self.jump_threshold:
+                # Clear historical poses to start a new, unconnected trail.
+                self.path_msg.poses = []
+
         self.path_msg.poses.append(pose_msg)
         if len(self.path_msg.poses) > self.max_path_points:
             self.path_msg.poses = self.path_msg.poses[-self.max_path_points :]
