@@ -110,14 +110,7 @@ class MPPI:
             U = np.clip(self.U[t] + eps[:, t, :], self.rpm_min, self.rpm_max)
             X = self._step_batch(X, U)
             pos = X[:, 0:3]
-            diff = self._wp[None, :, :] - pos[:, None, :]
-            sq   = np.sum(diff**2, axis=2)
-            idx  = np.argmin(sq, axis=1)   
-            progress = self._arc[idx]
-            offset   = np.sqrt(sq[np.arange(self.K), idx])
-            is_collision = (offset > self.env.tube_radius)
-            for obs in self.env.obstacles:
-                is_collision |= np.linalg.norm(pos - obs["center"], axis=1) < (obs["radius"] + self.env.drone_radius)
+            progress, offset, is_collision = self.env.query(pos)
 
             dt_elapsed = (t + 1) * self.dt
             progress_rate = np.clip((progress - x0_progress) / (self.max_speed * dt_elapsed), -1.0, 1.0)
