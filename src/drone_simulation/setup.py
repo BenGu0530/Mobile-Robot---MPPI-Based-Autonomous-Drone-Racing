@@ -28,6 +28,7 @@ setup(
             "obstacles_publisher = drone_simulation.obstacles_publisher:main",
             "waypoints_publisher = drone_simulation.waypoints_publisher:main",
             "race_node = drone_simulation.race_node:main",
+            "npz_publisher = drone_simulation.npz_publisher:main",
             "control_points_publisher = drone_simulation.control_points_publisher:main",
         ],
     },

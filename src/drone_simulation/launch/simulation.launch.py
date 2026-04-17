@@ -2,7 +2,7 @@ from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, PythonExpression
 import os
 from ament_index_python.packages import get_package_share_directory
 
@@ -10,11 +10,12 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
     use_rviz = LaunchConfiguration("use_rviz", default="true")
     use_circle_path = LaunchConfiguration("use_circle_path", default="false")
-    use_tube_marker = LaunchConfiguration("use_tube_marker", default="true")
+    use_tube_marker = LaunchConfiguration("use_tube_marker", default="false")
     use_obstacles = LaunchConfiguration("use_obstacles", default="true")
     use_control_points = LaunchConfiguration("use_control_points", default="true")
     use_race_node = LaunchConfiguration("use_race_node", default="true")
     use_gazebo_bridge = LaunchConfiguration("use_gazebo_bridge", default="true")
+    waypoints_file_name = LaunchConfiguration("waypoints_file_npz", default="None")
 
     drone_sim_dir = get_package_share_directory("drone_simulation")
     drone_models_dir = get_package_share_directory("drone_models")
@@ -26,6 +27,12 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
+            DeclareLaunchArgument(
+                "waypoints_file_npz",
+                default_value="None",
+                description="Path to .npz file containing waypoints to publish. "
+                "If None, will use default.",
+            ),
             DeclareLaunchArgument(
                 "use_rviz", default_value="true", description="Start Rviz2"
             ),
@@ -130,6 +137,17 @@ def generate_launch_description():
                 arguments=["-d", rviz_config],
                 output="screen",
                 condition=IfCondition(use_rviz),
+            ),
+            Node(
+                package="drone_simulation",
+                executable="npz_publisher",
+                name="npz_publisher",
+                output="screen",
+                emulate_tty=True,
+                condition=IfCondition(
+                    PythonExpression(["'", waypoints_file_name, "' != 'None'"])
+                ),
+                parameters=[{"waypoints_file": waypoints_file_name}],
             ),
         ]
     )

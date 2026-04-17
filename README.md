@@ -21,6 +21,7 @@ docker compose run --rm --service-ports drone_sim bash
 # http://localhost:8080/vnc.html
 
 # Inside container:
+colcon build
 source /ros2_ws/install/setup.bash
 
 # Launch simulation
