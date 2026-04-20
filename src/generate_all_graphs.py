@@ -50,6 +50,7 @@ def main():
 
     # Path to matplotlib_viz.py
     viz_script = os.path.join(script_dir, "matplotlib_viz.py")
+    stats_script = os.path.join(script_dir, "matplotlib_stats.py")
 
     # Generate individual plots
     for npz_file in npz_files:
@@ -61,6 +62,14 @@ def main():
         # Call matplotlib_viz.py with --save
         cmd = [sys.executable, viz_script, "--save", image_path, npz_path]
         print(f"Generating image for {npz_file}...")
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            print(f"Error generating image for {npz_file}: {result.stderr}")
+        else:
+            print(f"Saved {image_path}")
+
+        cmd = [sys.executable, stats_script, "--save", image_path, npz_path]
+        print(f"Generating stats image for {npz_file}...")
         result = subprocess.run(cmd, capture_output=True, text=True)
         if result.returncode != 0:
             print(f"Error generating image for {npz_file}: {result.stderr}")
