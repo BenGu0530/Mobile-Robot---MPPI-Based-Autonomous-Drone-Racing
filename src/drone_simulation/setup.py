@@ -30,6 +30,7 @@ setup(
             "race_node = drone_simulation.race_node:main",
             "npz_publisher = drone_simulation.npz_publisher:main",
             "control_points_publisher = drone_simulation.control_points_publisher:main",
+            "track_tube_publisher = drone_simulation.track_tube_publisher:main",
         ],
     },
 )

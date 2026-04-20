@@ -75,9 +75,9 @@ class DroneController(Node):
         self.o_z = msg.pose.orientation.z
         self.o_w = msg.pose.orientation.w
 
-        self.get_logger().info(
-            f"Target pose received: [{self.x:.2f}, {self.y:.2f}, {self.z:.2f}]"
-        )
+        # self.get_logger().info(
+        #     f"Target pose received: [{self.x:.2f}, {self.y:.2f}, {self.z:.2f}]"
+        # )
 
     def target_vel_callback(self, msg: Twist):
         """Receive velocity commands"""

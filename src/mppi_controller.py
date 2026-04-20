@@ -5,11 +5,12 @@ from tqdm import tqdm
 
 
 def compute_hover_rpm(model):
-    cT2 = float(model.model_params.motor_model[0])
-    cT1 = float(model.model_params.motor_model[1])
-    cT0 = float(model.model_params.motor_model[2])
+    print(model.model_params.motor_model)
+    cT2 = float(model.model_params.motor_model[0][0])
+    cT1 = float(model.model_params.motor_model[1][0])
+    cT0 = float(model.model_params.motor_model[2][0])
     T_hover = model.model_params.mass * model.model_params.gravity_norm / 4.0
-    return (-cT1 + np.sqrt(cT1**2 - 4*cT2*(cT0 - T_hover))) / (2*cT2)
+    return (-cT1 + np.sqrt(cT1**2 - 4 * cT2 * (cT0 - T_hover))) / (2 * cT2)
 
 
 class MPPI:
@@ -31,14 +32,14 @@ class MPPI:
         self.U = np.ones((self.T, 4)) * self.rpm_hover
 
         stride = max(1, len(env.waypoints) // 200)
-        self._wp  = env.waypoints[::stride]
+        self._wp = env.waypoints[::stride]
         self._arc = env._arc_lengths[::stride]
 
     def _get_state(self):
         x = np.zeros(17)
-        x[0:3]   = self.model.get_pose().translation().flatten()
-        x[3:7]   = self.model.get_pose().quaternion().flatten()
-        x[7:10]  = self.model.vw.flatten()
+        x[0:3] = self.model.get_pose().translation().flatten()
+        x[3:7] = self.model.get_pose().quaternion().flatten()
+        x[7:10] = self.model.vw.flatten()
         x[10:13] = self.model.wb.flatten()
         x[13:17] = self.model.rs.flatten()
         return x
@@ -55,33 +56,39 @@ class MPPI:
         M = result[:, 1:]
 
         qw, qx, qy, qz = X[:, 3], X[:, 4], X[:, 5], X[:, 6]
-        zb = np.stack([
-            2*(qx*qz + qw*qy),
-            2*(qy*qz - qw*qx),
-            1 - 2*(qx**2 + qy**2),
-        ], axis=1)
+        zb = np.stack(
+            [
+                2 * (qx * qz + qw * qy),
+                2 * (qy * qz - qw * qx),
+                1 - 2 * (qx**2 + qy**2),
+            ],
+            axis=1,
+        )
 
-        lin_acc = np.array([0., 0., -p.gravity_norm]) + (F / p.mass)[:, None] * zb
+        lin_acc = np.array([0.0, 0.0, -p.gravity_norm]) + (F / p.mass)[:, None] * zb
 
         wb = X[:, 10:13]
         Icm_wb = (p.inertia @ wb.T).T
         ang_acc = (p.inertia_inv @ (-np.cross(wb, Icm_wb) + M).T).T
 
-        dq = 0.5 * np.stack([
-            -qx*wb[:, 0] - qy*wb[:, 1] - qz*wb[:, 2],
-             qw*wb[:, 0] + qy*wb[:, 2] - qz*wb[:, 1],
-             qw*wb[:, 1] - qx*wb[:, 2] + qz*wb[:, 0],
-             qw*wb[:, 2] + qx*wb[:, 1] - qy*wb[:, 0],
-        ], axis=1)
+        dq = 0.5 * np.stack(
+            [
+                -qx * wb[:, 0] - qy * wb[:, 1] - qz * wb[:, 2],
+                qw * wb[:, 0] + qy * wb[:, 2] - qz * wb[:, 1],
+                qw * wb[:, 1] - qx * wb[:, 2] + qz * wb[:, 0],
+                qw * wb[:, 2] + qx * wb[:, 1] - qy * wb[:, 0],
+            ],
+            axis=1,
+        )
 
         w_cur = X[:, 13:17]
         k_m = np.where(U >= w_cur, p.kmotor_u, p.kmotor_d)
         drpm = (w_cur - U) * -k_m
 
         xdot = np.empty_like(X)
-        xdot[:, 0:3]   = X[:, 7:10]
-        xdot[:, 3:7]   = dq
-        xdot[:, 7:10]  = lin_acc
+        xdot[:, 0:3] = X[:, 7:10]
+        xdot[:, 3:7] = dq
+        xdot[:, 7:10] = lin_acc
         xdot[:, 10:13] = ang_acc
         xdot[:, 13:17] = drpm
         return xdot
@@ -89,10 +96,10 @@ class MPPI:
     def _step_batch(self, X, U):
         dt = self.dt
         k1 = self._ode_batch(X, U)
-        k2 = self._ode_batch(X + dt/2 * k1, U)
-        k3 = self._ode_batch(X + dt/2 * k2, U)
+        k2 = self._ode_batch(X + dt / 2 * k1, U)
+        k3 = self._ode_batch(X + dt / 2 * k2, U)
         k4 = self._ode_batch(X + dt * k3, U)
-        X_new = X + (dt/6) * (k1 + 2*k2 + 2*k3 + k4)
+        X_new = X + (dt / 6) * (k1 + 2 * k2 + 2 * k3 + k4)
         q = X_new[:, 3:7]
         X_new[:, 3:7] = q / np.linalg.norm(q, axis=1, keepdims=True)
         return X_new
@@ -112,23 +119,24 @@ class MPPI:
             progress, offset, is_collision = self.env.query(pos)
 
             dt_elapsed = (t + 1) * self.dt
-            progress_rate = np.clip((progress - x0_progress) / (self.max_speed * dt_elapsed), -1.0, 1.0)
+            progress_rate = np.clip(
+                (progress - x0_progress) / (self.max_speed * dt_elapsed), -1.0, 1.0
+            )
             step_cost = -self.k_progress * progress_rate
-            step_cost += self.k_offset * (offset / self.env.tube_radius)**2
-            collision_penalty = 2.0 * (self.k_progress+self.k_offset) * self.T
+            step_cost += self.k_offset * (offset / self.env.tube_radius) ** 2
+            collision_penalty = 2.0 * (self.k_progress + self.k_offset) * self.T
             step_cost[is_collision] += collision_penalty
             step_cost[X[:, 2] < 1.5] += collision_penalty
             costs += step_cost
 
         lam = max(costs.std(), 1e-6)
 
-        k_top = 5   
+        k_top = 5
 
-   
         best_idx = np.argsort(costs)[:k_top]
 
         costs_top = costs[best_idx]
-        eps_top   = eps[best_idx]
+        eps_top = eps[best_idx]
 
         beta = costs_top.min()
         w = np.exp(-(costs_top - beta) / lam)
@@ -136,9 +144,7 @@ class MPPI:
 
         for t in range(self.T):
             self.U[t] = np.clip(
-                self.U[t] + w @ eps_top[:, t, :],
-                self.rpm_min,
-                self.rpm_max
+                self.U[t] + w @ eps_top[:, t, :], self.rpm_min, self.rpm_max
             )
 
         return costs.min(), self.U
@@ -173,7 +179,9 @@ if __name__ == "__main__":
     model.rs = np.ones(4) * rpm_hover
     model.model_params.uRPM = np.ones((4, 1)) * rpm_hover
     print(f"Hover RPM:   {rpm_hover:.1f}")
-    print(f"RPM range:   [{model.model_params.rpm_params.min:.1f}, {model.model_params.rpm_params.max:.1f}]")
+    print(
+        f"RPM range:   [{model.model_params.rpm_params.min:.1f}, {model.model_params.rpm_params.max:.1f}]"
+    )
 
     env = RaceEnvironment()
     mppi = MPPI(model, env)
@@ -183,29 +191,40 @@ if __name__ == "__main__":
     fig, ax = plt.subplots(figsize=(9, 5))
 
     stride = 10
-    wp  = env.waypoints[::stride]
+    wp = env.waypoints[::stride]
     tan = env._tangents[::stride]
     perp = np.stack([-tan[:, 1], tan[:, 0]], axis=1)
     perp /= np.linalg.norm(perp, axis=1, keepdims=True).clip(1e-8)
     r = env.tube_radius
-    left  = wp[:, :2] + r * perp
+    left = wp[:, :2] + r * perp
     right = wp[:, :2] - r * perp
-    ax.plot(left[:, 0],  left[:, 1],  'b-', lw=1, alpha=0.25)
-    ax.plot(right[:, 0], right[:, 1], 'b-', lw=1, alpha=0.25)
-    ax.plot(wp[:, 0], wp[:, 1], 'b-', lw=1, alpha=0.5)
+    ax.plot(left[:, 0], left[:, 1], "b-", lw=1, alpha=0.25)
+    ax.plot(right[:, 0], right[:, 1], "b-", lw=1, alpha=0.25)
+    ax.plot(wp[:, 0], wp[:, 1], "b-", lw=1, alpha=0.5)
 
     for obs in env.obstacles:
-        ax.plot(obs["center"][0], obs["center"][1], 'rx', ms=10, mew=2)
-    ax.plot(*env.waypoints[0, :2],  'go', ms=8)
-    ax.plot(*env.waypoints[-1, :2], 'y*', ms=10)
-    ax.set_aspect('equal'); ax.set_xlabel('X (m)'); ax.set_ylabel('Y (m)')
-    drone_dot, = ax.plot([], [], 'ko', ms=7)
-    trail_line, = ax.plot([], [], 'k-', lw=1, alpha=0.4)
-    title = ax.set_title('')
+        ax.plot(obs["center"][0], obs["center"][1], "rx", ms=10, mew=2)
+    ax.plot(*env.waypoints[0, :2], "go", ms=8)
+    ax.plot(*env.waypoints[-1, :2], "y*", ms=10)
+    ax.set_aspect("equal")
+    ax.set_xlabel("X (m)")
+    ax.set_ylabel("Y (m)")
+    (drone_dot,) = ax.plot([], [], "ko", ms=7)
+    (trail_line,) = ax.plot([], [], "k-", lw=1, alpha=0.4)
+    title = ax.set_title("")
     plt.tight_layout()
     fig.show()
 
-    log = {"pos": [], "vel": [], "quat": [], "rpm": [], "u": [], "progress": [], "offset": [], "t": []}
+    log = {
+        "pos": [],
+        "vel": [],
+        "quat": [],
+        "rpm": [],
+        "u": [],
+        "progress": [],
+        "offset": [],
+        "t": [],
+    }
 
     trail = []
     t, dt = 0.0, 0.02
@@ -235,7 +254,9 @@ if __name__ == "__main__":
 
         if step % 20 == 0:
             speed = np.linalg.norm(s.vel.flatten())
-            print(f"  step={step:4d}  pos={pos}  progress={progress:.2f}m  speed={speed:.2f}m/s  u={u.astype(int)}")
+            print(
+                f"  step={step:4d}  pos={pos}  progress={progress:.2f}m  speed={speed:.2f}m/s  u={u.astype(int)}"
+            )
 
         if step % 5 == 0:
             trail.append(pos.copy())
@@ -243,7 +264,9 @@ if __name__ == "__main__":
             drone_dot.set_data([pos[0]], [pos[1]])
             trail_line.set_data(ta[:, 0], ta[:, 1])
             pct = 100 * progress / env.total_length
-            title.set_text(f"step={step}  {pct:.1f}%  {'COLLISION' if collision else f'off={offset:.1f}m'}")
+            title.set_text(
+                f"step={step}  {pct:.1f}%  {'COLLISION' if collision else f'off={offset:.1f}m'}"
+            )
             fig.canvas.draw_idle()
             fig.canvas.flush_events()
 

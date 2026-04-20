@@ -13,6 +13,7 @@ def generate_launch_description():
     use_tube_marker = LaunchConfiguration("use_tube_marker", default="false")
     use_obstacles = LaunchConfiguration("use_obstacles", default="true")
     use_control_points = LaunchConfiguration("use_control_points", default="true")
+    use_track_tube = LaunchConfiguration("use_track_tube", default="true")
     use_race_node = LaunchConfiguration("use_race_node", default="false")
     use_gazebo_bridge = LaunchConfiguration("use_gazebo_bridge", default="true")
     waypoints_file_name = LaunchConfiguration("waypoints_file", default="None")
@@ -55,6 +56,11 @@ def generate_launch_description():
                 "use_control_points",
                 default_value="true",
                 description="Publish control points in RViz",
+            ),
+            DeclareLaunchArgument(
+                "use_track_tube",
+                default_value="true",
+                description="Publish the race track as a spline tube in RViz",
             ),
             DeclareLaunchArgument(
                 "use_race_node",
@@ -113,6 +119,14 @@ def generate_launch_description():
                 output="screen",
                 emulate_tty=True,
                 condition=IfCondition(use_control_points),
+            ),
+            Node(
+                package="drone_simulation",
+                executable="track_tube_publisher",
+                name="track_tube_publisher",
+                output="screen",
+                emulate_tty=True,
+                condition=IfCondition(use_track_tube),
             ),
             Node(
                 package="drone_simulation",

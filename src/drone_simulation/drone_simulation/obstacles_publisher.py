@@ -60,7 +60,7 @@ class ObstaclesPublisher(Node):
             m.color.r = 0.8
             m.color.g = 0.1
             m.color.b = 0.1
-            m.color.a = 0.8
+            m.color.a = 0.9
             m.lifetime.sec = 0
             m.frame_locked = True
 

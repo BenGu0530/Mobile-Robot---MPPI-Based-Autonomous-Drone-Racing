@@ -20,9 +20,15 @@ class RPMParameters:
         pass
 
     def __repr__(self):
-        return ('RPMParameters\n' +
-                'min:' + str(self.min) + '\n' +
-                'max:' + str(self.max) + '\n')
+        return (
+            "RPMParameters\n"
+            + "min:"
+            + str(self.min)
+            + "\n"
+            + "max:"
+            + str(self.max)
+            + "\n"
+        )
 
 
 class ModelParameters:
@@ -48,19 +54,40 @@ class ModelParameters:
         self.cg_offset = np.zeros((3, 1))
 
     def __repr__(self):
-        return ('ModelParameters\n' +
-                'gravity norm:\t\t' + str(self.gravity_norm) + '\n' +
-                'mass:\t\t\t' + str(self.mass) + '\n' +
-                'mixer:\n' + np.array2string(self.mixer) + '\n' +
-                'inertia:\n' + np.array2string(self.inertia) + '\n' +
-                'inertia_inv:\n' + np.array2string(self.inertia_inv) + '\n' +
-                'aw:\t\t\t' + np.array2string(np.transpose(self.aw)) + '\n' +
-                'ang_acc:\t\t' + np.array2string(np.transpose(self.ang_acc)) + '\n' +
-                'uRPM:\t\t\t' + np.array2string(np.transpose(self.uRPM)) + '\n' +
-                'kmotor_u:\t\t\t' + str(self.kmotor_u) + '\n' +
-                'kmotor_d:\t\t\t' + str(self.kmotor_d) + '\n\n' +
-                self.rpm_params.__repr__()
-                )
+        return (
+            "ModelParameters\n"
+            + "gravity norm:\t\t"
+            + str(self.gravity_norm)
+            + "\n"
+            + "mass:\t\t\t"
+            + str(self.mass)
+            + "\n"
+            + "mixer:\n"
+            + np.array2string(self.mixer)
+            + "\n"
+            + "inertia:\n"
+            + np.array2string(self.inertia)
+            + "\n"
+            + "inertia_inv:\n"
+            + np.array2string(self.inertia_inv)
+            + "\n"
+            + "aw:\t\t\t"
+            + np.array2string(np.transpose(self.aw))
+            + "\n"
+            + "ang_acc:\t\t"
+            + np.array2string(np.transpose(self.ang_acc))
+            + "\n"
+            + "uRPM:\t\t\t"
+            + np.array2string(np.transpose(self.uRPM))
+            + "\n"
+            + "kmotor_u:\t\t\t"
+            + str(self.kmotor_u)
+            + "\n"
+            + "kmotor_d:\t\t\t"
+            + str(self.kmotor_d)
+            + "\n\n"
+            + self.rpm_params.__repr__()
+        )
 
 
 class QuadrotorModel:
@@ -89,66 +116,88 @@ class QuadrotorModel:
     def initialize(self, yaml_file):
 
         data = []
-        with open(yaml_file, 'r') as stream:
+        with open(yaml_file, "r") as stream:
             try:
                 data = yaml.safe_load(stream)
             except yaml.YamlError as exc:
                 print(exc)
 
-            self.model_params.mass = data['mass']
-            self.model_params.gravity_norm = data['gravity_norm']
+            self.model_params.mass = data["mass"]
+            self.model_params.gravity_norm = data["gravity_norm"]
 
             tmp1 = np.zeros((3, 3))
             tmp2 = np.zeros((3, 3))
-            tmp1[0, 0] = data['inertia']['Ixx']
-            tmp1[1, 1] = data['inertia']['Iyy']
-            tmp1[2, 2] = data['inertia']['Izz']
-            tmp2[0, 1] = data['inertia']['Ixy']
-            tmp2[0, 2] = data['inertia']['Ixz']
-            tmp2[1, 2] = data['inertia']['Iyz']
+            tmp1[0, 0] = data["inertia"]["Ixx"]
+            tmp1[1, 1] = data["inertia"]["Iyy"]
+            tmp1[2, 2] = data["inertia"]["Izz"]
+            tmp2[0, 1] = data["inertia"]["Ixy"]
+            tmp2[0, 2] = data["inertia"]["Ixz"]
+            tmp2[1, 2] = data["inertia"]["Iyz"]
             self.model_params.inertia = tmp1 + tmp2 + np.transpose(tmp2)
-            self.model_params.inertia_inv = np.linalg.inv(
-                self.model_params.inertia)
+            self.model_params.inertia_inv = np.linalg.inv(self.model_params.inertia)
 
-            self.model_params.motor_model[0] = data['rotor']['cT2']
-            self.model_params.motor_model[1] = data['rotor']['cT1']
-            self.model_params.motor_model[2] = data['rotor']['cT0']
+            self.model_params.motor_model[0] = data["rotor"]["cT2"]
+            self.model_params.motor_model[1] = data["rotor"]["cT1"]
+            self.model_params.motor_model[2] = data["rotor"]["cT0"]
 
-            self.model_params.kmotor_u = data['rotor']['time_constant']
-            self.model_params.kmotor_d = data['rotor']['time_constant']
+            self.model_params.kmotor_u = data["rotor"]["time_constant"]
+            self.model_params.kmotor_d = data["rotor"]["time_constant"]
 
-            self.zoffset = data['zoffset']
+            self.zoffset = data["zoffset"]
 
             # TODO: Fix in next iteration
             self.model_params.cg_offset[0] = 0.0
             self.model_params.cg_offset[1] = 0.0
             self.model_params.cg_offset[2] = 0.0
 
-            self.model_params.rpm_params.min = data['rpm']['min']
-            self.model_params.rpm_params.max = data['rpm']['max']
+            self.model_params.rpm_params.min = data["rpm"]["min"]
+            self.model_params.rpm_params.max = data["rpm"]["max"]
 
             self.num_rotors = 4
 
             self.mixer.initialize(yaml_file)
             self.model_params.mixer = self.mixer.construct_mixer()
 
-            self.enable_rotor_inertia = data['rotor']['enable_inertia']
+            self.enable_rotor_inertia = data["rotor"]["enable_inertia"]
 
     def __repr__(self):
-        return ('QuadrotorModel\n' +
-                'Twb:\n' + np.array2string(self.Twb.get_se3().as_matrix()) + '\n' +
-                'vw:' + np.array2string(np.transpose(self.vw)) + '\n' +
-                'aw:' + np.array2string(np.transpose(self.aw)) + '\n' +
-                'wb:' + np.array2string(np.transpose(self.wb)) + '\n' +
-                'ang_acc:' + np.array2string(np.transpose(self.ang_acc)) + '\n' +
-                'rs:' + np.array2string(np.transpose(self.rs)) + '\n' +
-                'num_rotors:\t\t\t' + str(self.num_rotors) + '\n' +
-                'time:\t\t\t\t' + str(self.time) + '\n' +
-                'tstart:\t\t\t\t' + str(self.tstart) + '\n' +
-                'zoffset:\t\t\t' + str(self.zoffset) + '\n' +
-                'use cm offset:\t\t\t' + str(self.use_cm_offset) + '\n' +
-                self.model_params.__repr__()
-                )
+        return (
+            "QuadrotorModel\n"
+            + "Twb:\n"
+            + np.array2string(self.Twb.get_se3().as_matrix())
+            + "\n"
+            + "vw:"
+            + np.array2string(np.transpose(self.vw))
+            + "\n"
+            + "aw:"
+            + np.array2string(np.transpose(self.aw))
+            + "\n"
+            + "wb:"
+            + np.array2string(np.transpose(self.wb))
+            + "\n"
+            + "ang_acc:"
+            + np.array2string(np.transpose(self.ang_acc))
+            + "\n"
+            + "rs:"
+            + np.array2string(np.transpose(self.rs))
+            + "\n"
+            + "num_rotors:\t\t\t"
+            + str(self.num_rotors)
+            + "\n"
+            + "time:\t\t\t\t"
+            + str(self.time)
+            + "\n"
+            + "tstart:\t\t\t\t"
+            + str(self.tstart)
+            + "\n"
+            + "zoffset:\t\t\t"
+            + str(self.zoffset)
+            + "\n"
+            + "use cm offset:\t\t\t"
+            + str(self.use_cm_offset)
+            + "\n"
+            + self.model_params.__repr__()
+        )
 
     def reset_simulation(self):
         self.model_params.uRPM = np.zeros((4, 1))
@@ -173,7 +222,7 @@ class QuadrotorModel:
         self.Twb = Pose(Twb)
 
     def calculate_force_and_torque_from_rpm(self, rpms):
-        """ Calculates the scalar force and torques from RPM using
+        """Calculates the scalar force and torques from RPM using
                 the motor model within this class object.
         Args:
             rpms: These are the RPM values.
@@ -185,15 +234,17 @@ class QuadrotorModel:
         # TODO: Assignment 1, Problem 1.2
 
         mixer = self.model_params.mixer
-        w1,w2,w3,w4=rpms
-        o = np.array([[w1**2, w1, 1],[w2**2, w2, 1],[w3**2,w3,1],[w4**2,w4,1]])
-        result = mixer@(o@self.model_params.motor_model)
+        w1, w2, w3, w4 = rpms
+        o = np.array([[w1**2, w1, 1], [w2**2, w2, 1], [w3**2, w3, 1], [w4**2, w4, 1]])
+        result = mixer @ (o @ self.model_params.motor_model)
+        print(result)
+        result = result.flatten()
         F = float(result[0])
-        M = result[1:].flatten()#np.array(np.zeros((3,1)))
+        M = result[1:].flatten()  # np.array(np.zeros((3,1)))
         return F, M
 
     def quaternion_derivative(self, qn, wb):
-        """ Calculates the derivative of the quaternion given
+        """Calculates the derivative of the quaternion given
             an input quaternion (qn) and angular velocities (wb)
 
         Args:
@@ -205,20 +256,22 @@ class QuadrotorModel:
         """
 
         # TODO: Assignment 1, Problem 1.3
-        q0,q1,q2,q3 = qn.w(), qn.x(), qn.y(), qn.z()
-        w1,w2,w3 = wb
+        q0, q1, q2, q3 = qn.w(), qn.x(), qn.y(), qn.z()
+        w1, w2, w3 = wb
         w0 = 0
-        q_cross_w = np.array([
-            q0*w0 - q1*w1 - q2*w2 - q3*w3,
-            q0*w1 + q1*w0 + q2*w3 - q3*w2,
-            q0*w2 - q1*w3 + q2*w0 + q3*w1,
-            q0*w3 + q1*w2 - q2*w1 + q3*w0
-        ])
+        q_cross_w = np.array(
+            [
+                q0 * w0 - q1 * w1 - q2 * w2 - q3 * w3,
+                q0 * w1 + q1 * w0 + q2 * w3 - q3 * w2,
+                q0 * w2 - q1 * w3 + q2 * w0 + q3 * w1,
+                q0 * w3 + q1 * w2 - q2 * w1 + q3 * w0,
+            ]
+        )
 
-        return 0.5*q_cross_w
+        return 0.5 * q_cross_w
 
     def calculate_world_frame_linear_acceleration(self, model, ang_acc, wb, Rwb, u1):
-        """ Calculates the linear acceleration of the aerial robot.
+        """Calculates the linear acceleration of the aerial robot.
                 Hint: Use Equation (4.2) of Daniel Mellinger's PhD thesis
                 "Trajectory Generation and Control for Quadrotors"
 
@@ -235,20 +288,20 @@ class QuadrotorModel:
         """
 
         # TODO: Assignment 1, Problem 1.4
-        zw = np.array([0,0,1])
-        zb = Rwb@np.array([0,0,1])
+        zw = np.array([0, 0, 1])
+        zb = Rwb @ np.array([0, 0, 1])
         m = model.mass
         g = model.gravity_norm
-        RHS = -m*g*zw + u1*zb
+        RHS = -m * g * zw + u1 * zb
         r_off = model.cg_offset.flatten()
         wb = wb.flatten()
         ang_acc = ang_acc.flatten()
         term = np.cross(ang_acc, r_off) + np.cross(wb, np.cross(wb, r_off))
 
-        return RHS/m - term
+        return RHS / m - term
 
     def calculate_angular_acceleration(self, model, moments, wb, Fdes):
-        """ Calculates the vehicle angular acceleration.
+        """Calculates the vehicle angular acceleration.
                 Hint: Use Equation (4.3) of Daniel Mellinger's PhD thesis
                 "Trajectory Generation and Control for Quadrotors"
 
@@ -267,11 +320,15 @@ class QuadrotorModel:
         Icm = model.inertia
         Icm_inv = model.inertia_inv
         r_off = model.cg_offset.flatten()
-        RHS = -np.cross(wb.flatten(), (Icm@wb).flatten()) + moments.flatten() - np.cross(r_off, Fdes.flatten())
-        return Icm_inv@RHS
+        RHS = (
+            -np.cross(wb.flatten(), (Icm @ wb).flatten())
+            + moments.flatten()
+            - np.cross(r_off, Fdes.flatten())
+        )
+        return Icm_inv @ RHS
 
     def ode_step(self, t, x):
-        """ Numerically integrates the robot dynamics given an initialize
+        """Numerically integrates the robot dynamics given an initialize
                 condition.
 
             Don't forget to set self.model_params.aw and self.model_params.ang_acc
@@ -303,14 +360,18 @@ class QuadrotorModel:
         # self.model_params.aw = aw
         # self.model_params.ang_acc = ang_acc
 
-        #REMEMBER TODO ABOVE STEPS
+        # REMEMBER TODO ABOVE STEPS
         F, M = self.calculate_force_and_torque_from_rpm(x[13:17])
         wb = x[10:13]
         q = Quaternion(x[3:7])
         Rwb = Rot3.from_quat(q).R
 
-        ang_acc = self.calculate_angular_acceleration(self.model_params, M, wb, np.array([0,0,F]))
-        lin_acc = self.calculate_world_frame_linear_acceleration(self.model_params, ang_acc, wb, Rwb, F)
+        ang_acc = self.calculate_angular_acceleration(
+            self.model_params, M, wb, np.array([0, 0, F])
+        )
+        lin_acc = self.calculate_world_frame_linear_acceleration(
+            self.model_params, ang_acc, wb, Rwb, F
+        )
         q_dot = self.quaternion_derivative(q, wb)
         # print(q_dot)
         self.model_params.ang_acc = ang_acc
@@ -318,19 +379,19 @@ class QuadrotorModel:
 
         xdot = np.zeros((17))
 
-
         xdot[0:3] = x[7:10]
         xdot[3:7] = q_dot
         xdot[7:10] = lin_acc
         xdot[10:13] = ang_acc
-        
+
         wdes = self.model_params.uRPM.flatten()
         w = x[13:17]
         if self.enable_rotor_inertia:
-            k = np.where(wdes >= w, self.model_params.kmotor_u, self.model_params.kmotor_d)
-            xdot[13:17] = (w-wdes)*-k#(wdes-w)/k
-        
-        
+            k = np.where(
+                wdes >= w, self.model_params.kmotor_u, self.model_params.kmotor_d
+            )
+            xdot[13:17] = (w - wdes) * -k  # (wdes-w)/k
+
         return xdot.flatten()
 
     def _saturate_rpms(self, p, rpm_in):
