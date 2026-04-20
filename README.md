@@ -33,6 +33,11 @@ ros2 launch drone_simulation simulation.launch.py use_circle_path:=true
 # Headless/container-safe launch (no RViz)
 ros2 launch drone_simulation simulation.launch.py use_rviz:=false
 
+# To run with loading in a trajectory from NPZ file: 
+ros2 launch drone_simulation simulation.launch.py npz_publisher:=[filename].npz
+# Example using the raceline file
+ros2 launch drone_simulation simulation.launch.py npz_publisher:=trajectory-raceline.npz
+
 # Manual target publish mode (default: use_circle_path:=false)
 # In another terminal (docker exec):
 docker exec -it drone_sim bash

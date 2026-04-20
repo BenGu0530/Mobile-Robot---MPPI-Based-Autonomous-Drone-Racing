@@ -54,8 +54,8 @@ class DroneController(Node):
             self.get_parameter("jump_threshold").get_parameter_value().double_value
         )
 
-        # Timer for publishing state at 10 Hz
-        self.timer = self.create_timer(0.1, self.publish_state)
+        # Timer for publishing state
+        self.timer = self.create_timer(0.02, self.publish_state)
 
         self.get_logger().info("Position controller initialized")
 
@@ -64,6 +64,12 @@ class DroneController(Node):
         self.x = msg.pose.position.x
         self.y = msg.pose.position.y
         self.z = msg.pose.position.z
+
+        self.o_x = msg.pose.orientation.x
+        self.o_y = msg.pose.orientation.y
+        self.o_z = msg.pose.orientation.z
+        self.o_w = msg.pose.orientation.w
+
         self.get_logger().info(
             f"Target pose received: [{self.x:.2f}, {self.y:.2f}, {self.z:.2f}]"
         )

@@ -20,6 +20,11 @@ class NpzPublisher(Node):
         self.timer = self.create_timer(self.dt, self.publish_target)
 
         waypoints_file = self.get_parameter("waypoints_file").value
+        if waypoints_file is None or waypoints_file == "None":
+            self.get_logger().error(
+                "No waypoints file provided. Set the 'waypoints_file' parameter to a valid .npz file."
+            )
+            return
         self.waypoint_files = np.load(waypoints_file)
         self.waypoints_pos = self.waypoint_files["pos"]
         self.waypoints_quat = self.waypoint_files["quat"]
