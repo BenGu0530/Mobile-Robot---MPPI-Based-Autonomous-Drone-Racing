@@ -36,7 +36,7 @@ ros2 launch drone_simulation simulation.launch.py use_rviz:=false
 # To run with loading in a trajectory from NPZ file: 
 ros2 launch drone_simulation simulation.launch.py npz_publisher:=[filename].npz
 # Example using the raceline file
-ros2 launch drone_simulation simulation.launch.py npz_publisher:=trajectory-raceline.npz
+ros2 launch drone_simulation simulation.launch.py waypoints_file:=src/trajectory-raceline.npz
 
 # Manual target publish mode (default: use_circle_path:=false)
 # In another terminal (docker exec):

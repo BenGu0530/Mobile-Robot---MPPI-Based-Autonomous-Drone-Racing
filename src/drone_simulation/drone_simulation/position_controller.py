@@ -18,6 +18,11 @@ class DroneController(Node):
         self.y = 0.0
         self.z = 0.0
 
+        self.o_x = 0.0
+        self.o_y = 0.0
+        self.o_z = 0.0
+        self.o_w = 1.0
+
         # Current velocity
         self.vx = 0.0
         self.vy = 0.0
@@ -95,7 +100,10 @@ class DroneController(Node):
         pose_msg.pose.position.x = self.x
         pose_msg.pose.position.y = self.y
         pose_msg.pose.position.z = self.z
-        pose_msg.pose.orientation.w = 1.0
+        pose_msg.pose.orientation.x = self.o_x
+        pose_msg.pose.orientation.y = self.o_y
+        pose_msg.pose.orientation.z = self.o_z
+        pose_msg.pose.orientation.w = self.o_w
 
         self.drone_state_pub.publish(pose_msg)
 
@@ -119,17 +127,31 @@ class DroneController(Node):
             self.path_msg.poses = self.path_msg.poses[-self.max_path_points :]
         self.drone_path_pub.publish(self.path_msg)
 
+        time = self.get_clock().now().to_msg()
         # Broadcast TF transform
         transform = TransformStamped()
-        transform.header.stamp = self.get_clock().now().to_msg()
+        transform.header.stamp = time
         transform.header.frame_id = "world"
         transform.child_frame_id = "base_link"
         transform.transform.translation.x = self.x
         transform.transform.translation.y = self.y
         transform.transform.translation.z = self.z
-        transform.transform.rotation.w = 1.0
+        transform.transform.rotation.x = self.o_x
+        transform.transform.rotation.y = self.o_y
+        transform.transform.rotation.z = self.o_z
+        transform.transform.rotation.w = self.o_w
+
+        transform_cam = TransformStamped()
+        transform_cam.header.stamp = time
+        transform_cam.header.frame_id = "world"
+        transform_cam.child_frame_id = "follow_cam"
+        transform_cam.transform.translation.x = self.x
+        transform_cam.transform.translation.y = self.y
+        transform_cam.transform.translation.z = self.z
+        transform_cam.transform.rotation.w = 1.0
 
         self.tf_broadcaster.sendTransform(transform)
+        self.tf_broadcaster.sendTransform(transform_cam)
 
 
 def main(args=None):

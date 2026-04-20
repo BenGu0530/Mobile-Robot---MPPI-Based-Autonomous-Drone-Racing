@@ -28,12 +28,18 @@ class NpzPublisher(Node):
         self.waypoint_files = np.load(waypoints_file)
         self.waypoints_pos = self.waypoint_files["pos"]
         self.waypoints_quat = self.waypoint_files["quat"]
+
         self.num_waypoints = self.waypoints_pos.shape[0]
-        self.step = 0
+        self.step = -10
+        # start a few steps back to give time for subscribers to connect
 
         self.get_logger().info(f"Publishing NPZ waypoints on /drone/target_pose")
 
     def publish_target(self):
+        if self.step < 0:
+            self.step += 1
+            return
+
         msg = PoseStamped()
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.header.frame_id = "world"
@@ -42,8 +48,8 @@ class NpzPublisher(Node):
         quat = self.waypoints_quat[self.step, :]
         self.step += 1
         # Reset number of steps
-        if self.step > self.num_waypoints:
-            self.step = 0
+        if self.step >= self.num_waypoints:
+            self.step = -10
 
         msg.pose.position.x = float(pos[0])
         msg.pose.position.y = float(pos[1])

@@ -13,9 +13,9 @@ def generate_launch_description():
     use_tube_marker = LaunchConfiguration("use_tube_marker", default="false")
     use_obstacles = LaunchConfiguration("use_obstacles", default="true")
     use_control_points = LaunchConfiguration("use_control_points", default="true")
-    use_race_node = LaunchConfiguration("use_race_node", default="true")
+    use_race_node = LaunchConfiguration("use_race_node", default="false")
     use_gazebo_bridge = LaunchConfiguration("use_gazebo_bridge", default="true")
-    waypoints_file_name = LaunchConfiguration("waypoints_file_npz", default="None")
+    waypoints_file_name = LaunchConfiguration("waypoints_file", default="None")
 
     drone_sim_dir = get_package_share_directory("drone_simulation")
     drone_models_dir = get_package_share_directory("drone_models")
@@ -28,7 +28,7 @@ def generate_launch_description():
     return LaunchDescription(
         [
             DeclareLaunchArgument(
-                "waypoints_file_npz",
+                "waypoints_file",
                 default_value="None",
                 description="Path to .npz file containing waypoints to publish. "
                 "If None, will use default.",
@@ -58,7 +58,7 @@ def generate_launch_description():
             ),
             DeclareLaunchArgument(
                 "use_race_node",
-                default_value="true",
+                default_value="false",
                 description="Start the race_node to publish targets to /drone/target_pose",
             ),
             DeclareLaunchArgument(
