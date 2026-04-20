@@ -10,7 +10,6 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
     use_rviz = LaunchConfiguration("use_rviz", default="true")
     use_circle_path = LaunchConfiguration("use_circle_path", default="false")
-    use_tube_marker = LaunchConfiguration("use_tube_marker", default="false")
     use_obstacles = LaunchConfiguration("use_obstacles", default="true")
     use_control_points = LaunchConfiguration("use_control_points", default="true")
     use_track_tube = LaunchConfiguration("use_track_tube", default="true")
@@ -41,11 +40,6 @@ def generate_launch_description():
                 "use_circle_path",
                 default_value="false",
                 description="Publish circular target path on /drone/target_pose",
-            ),
-            DeclareLaunchArgument(
-                "use_tube_marker",
-                default_value="true",
-                description="Publish a large tube marker in RViz",
             ),
             DeclareLaunchArgument(
                 "use_obstacles",
@@ -95,14 +89,6 @@ def generate_launch_description():
                 output="screen",
                 emulate_tty=True,
                 condition=IfCondition(use_circle_path),
-            ),
-            Node(
-                package="drone_simulation",
-                executable="tube_marker_publisher",
-                name="tube_marker_publisher",
-                output="screen",
-                emulate_tty=True,
-                condition=IfCondition(use_tube_marker),
             ),
             Node(
                 package="drone_simulation",

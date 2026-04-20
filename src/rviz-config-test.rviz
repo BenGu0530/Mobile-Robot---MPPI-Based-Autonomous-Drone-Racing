@@ -7,8 +7,9 @@ Panels:
         - /Global Options1
         - /Status1
         - /Grid1
-        - /Tube Marker1
+        - /Centerline Marker1
         - /Marker1/Topic1
+        - /Tube Markers1
       Splitter Ratio: 0.5
     Tree Height: 142
   - Class: rviz_common/Selection
@@ -216,18 +217,18 @@ Visualization Manager:
         Value: /drone/path
       Value: true
     - Class: rviz_default_plugins/Marker
-      Enabled: false
-      Name: Tube Marker
+      Enabled: true
+      Name: Centerline Marker
       Namespaces:
-        {}
+        track: true
       Topic:
         Depth: 5
         Durability Policy: Volatile
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /scene/tube_marker
-      Value: false
+        Value: /scene/track_centerline
+      Value: true
     - Class: rviz_default_plugins/Marker
       Enabled: true
       Name: Marker
@@ -253,6 +254,18 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /scene/control_points_marker
+      Value: true
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Name: Tube Markers
+      Namespaces:
+        track_tube: true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /scene/track_tube
       Value: true
   Enabled: true
   Global Options:
@@ -300,7 +313,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/ThirdPersonFollower
-      Distance: 4.686343669891357
+      Distance: 8.784460067749023
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -315,10 +328,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.2453981637954712
+      Pitch: 0.3053981065750122
       Target Frame: follow_cam
       Value: ThirdPersonFollower (rviz_default_plugins)
-      Yaw: 3.205397605895996
+      Yaw: 3.2403969764709473
     Saved: ~
 Window Geometry:
   Displays:
