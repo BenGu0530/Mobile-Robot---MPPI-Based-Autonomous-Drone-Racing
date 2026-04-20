@@ -4,6 +4,22 @@ from rclpy.node import Node
 import numpy as np
 
 
+def normalize_quaternion(q):
+    """Normalizes a quaternion to have unit norm.
+
+    Args:
+        q: A 4-element array-like representing the quaternion (w, x, y, z)
+
+    Returns:
+        A numpy array of shape (4,) representing the normalized quaternion.
+    """
+    q = np.array(q, dtype=float)
+    norm = np.linalg.norm(q)
+    if norm < 1e-8:
+        raise ValueError("Cannot normalize a zero-norm quaternion")
+    return q / norm
+
+
 class NpzPublisher(Node):
     """Node that publishes waypoints loaded from a .npz file on the /drone/target_pose topic.
     This node publishes at a rate of 20 Hz."""
@@ -55,10 +71,11 @@ class NpzPublisher(Node):
         msg.pose.position.y = float(pos[1])
         msg.pose.position.z = float(pos[2])
 
-        msg.pose.orientation.x = float(quat[0])
-        msg.pose.orientation.y = float(quat[1])
-        msg.pose.orientation.z = float(quat[2])
-        msg.pose.orientation.w = float(quat[3])
+        quat = normalize_quaternion(quat)
+        msg.pose.orientation.w = float(quat[0])
+        msg.pose.orientation.x = float(quat[1])
+        msg.pose.orientation.y = float(quat[2])
+        msg.pose.orientation.z = float(quat[3])
 
         self.publisher.publish(msg)
 
