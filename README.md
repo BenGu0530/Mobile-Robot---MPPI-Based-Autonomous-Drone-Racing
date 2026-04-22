@@ -27,12 +27,6 @@ source /ros2_ws/install/setup.bash
 # Launch simulation
 ros2 launch drone_simulation simulation.launch.py
 
-# Launch simulation with built-in circular target publisher
-ros2 launch drone_simulation simulation.launch.py use_circle_path:=true
-
-# Headless/container-safe launch (no RViz)
-ros2 launch drone_simulation simulation.launch.py use_rviz:=false
-
 # To run with loading in a trajectory from NPZ file: 
 ros2 launch drone_simulation simulation.launch.py npz_publisher:=[filename].npz
 # Example using the raceline file
@@ -48,5 +42,3 @@ ros2 topic pub /drone/target_pose geometry_msgs/PoseStamped \
 Container processes run as `devuser` (non-root), so workspace artifacts in mounted folders
 are created with your host UID/GID instead of root.
 
-## Additional Notes
-docker-compose --profile gazebo up

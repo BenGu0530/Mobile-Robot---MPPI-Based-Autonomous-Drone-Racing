@@ -1,6 +1,7 @@
 import rclpy
 from geometry_msgs.msg import PoseStamped
 from rclpy.node import Node
+from rclpy.duration import Duration
 import numpy as np
 
 
@@ -49,6 +50,7 @@ class NpzPublisher(Node):
         self.step = -10
         # start a few steps back to give time for subscribers to connect
 
+        self.get_clock().sleep_for(Duration(seconds=5.0))  # wait for RViz to connect
         self.get_logger().info(f"Publishing NPZ waypoints on /drone/target_pose")
 
     def publish_target(self):
@@ -71,11 +73,11 @@ class NpzPublisher(Node):
         msg.pose.position.y = float(pos[1])
         msg.pose.position.z = float(pos[2])
 
-        quat = normalize_quaternion(quat)
-        msg.pose.orientation.w = float(quat[0])
-        msg.pose.orientation.x = float(quat[1])
-        msg.pose.orientation.y = float(quat[2])
-        msg.pose.orientation.z = float(quat[3])
+        # quat = normalize_quaternion(quat)
+        # msg.pose.orientation.w = float(quat[0])
+        # msg.pose.orientation.x = float(quat[1])
+        # msg.pose.orientation.y = float(quat[2])
+        # msg.pose.orientation.z = float(quat[3])
 
         self.publisher.publish(msg)
 
