@@ -14,7 +14,7 @@ def generate_launch_description():
     use_control_points = LaunchConfiguration("use_control_points", default="true")
     use_track_tube = LaunchConfiguration("use_track_tube", default="true")
     use_race_node = LaunchConfiguration("use_race_node", default="false")
-    use_gazebo_bridge = LaunchConfiguration("use_gazebo_bridge", default="true")
+    use_gazebo_bridge = LaunchConfiguration("use_gazebo_bridge", default="false")
     waypoints_file_name = LaunchConfiguration("waypoints_file", default="None")
 
     drone_sim_dir = get_package_share_directory("drone_simulation")

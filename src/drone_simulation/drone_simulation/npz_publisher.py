@@ -67,7 +67,8 @@ class NpzPublisher(Node):
         self.step += 1
         # Reset number of steps
         if self.step >= self.num_waypoints:
-            self.step = -10
+            self.step = 0
+            self.get_clock().sleep_for(Duration(seconds=5.0))  # pause when resetting
 
         msg.pose.position.x = float(pos[0])
         msg.pose.position.y = float(pos[1])

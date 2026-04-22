@@ -53,7 +53,7 @@ source /ros2_ws/install/setup.bash
 ros2 launch drone_simulation simulation.launch.py
 
 # To run with loading in a trajectory from NPZ file: 
-ros2 launch drone_simulation simulation.launch.py npz_publisher:=[filename].npz
+ros2 launch drone_simulation simulation.launch.py waypoints_file:=[filename].npz
 # Example using the raceline file
 ros2 launch drone_simulation simulation.launch.py waypoints_file:=src/trajectory-raceline.npz
 
@@ -74,3 +74,7 @@ For MPPI:
 
 [1] G. Williams, A. Aldrich, and E. Theodorou, “Model Predictive Path Integral Control using Covariance Variable Importance Sampling,” Oct. 28, 2015, arXiv: arXiv:1509.01149. doi: 10.48550/arXiv.1509.01149.
 
+
+## Notes
+
+Some additional code remains from attempting to integrate Gazebo, but this is left as future work.
